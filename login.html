@@ -15,22 +15,29 @@
     <button id="login-btn">Sign in with Google</button>
 
     <script>
-        // Apni Firebase Config yahan dalein
         const firebaseConfig = {
-	apiKey: "AIzaSyAZq0aKVxMP8Ge2uC5Z6HED43oeI8tXp6M",
-  	authDomain: "test-project-544.firebaseapp.com",
-	projectId: "test-project-544",
-	storageBucket: "test-project-544.firebasestorage.app",
-	messagingSenderId: "60482986426",
-	appId: "1:60482986426:web:21f9fc004fc2f9f44a3d83",
+            apiKey: "AIzaSyAZq0aKVxMP8Ge2uC5Z6HED43oeI8tXp6M",
+            authDomain: "test-project-544.firebaseapp.com",
+            projectId: "test-project-544",
+            storageBucket: "test-project-544.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
         firebase.initializeApp(firebaseConfig);
 
         const provider = new firebase.auth.GoogleAuthProvider();
 
+        // 1. Button click par Popup ke bajaye Redirect use karein
         document.getElementById('login-btn').addEventListener('click', () => {
-            firebase.auth().signInWithPopup(provider).then((result) => {
+            firebase.auth().signInWithRedirect(provider).catch((error) => {
+                console.error("Redirect Error:", error);
+            });
+        });
+
+        // 2. Jab user Google se login karke wapas aaye, toh result yahan catch hoga
+        firebase.auth().getRedirectResult().then((result) => {
+            if (result.user) {
                 const user = result.user;
                 const userData = {
                     name: user.displayName,
@@ -39,15 +46,15 @@
                     photo: user.photoURL
                 };
                 
-                // Unreal Engine ko Data bhejne ke liye (ue.interface method)
+                // Unreal Engine ko Data bhejne ke liye
                 if (window.ue && window.ue.logininterface) {
                     window.ue.logininterface.onloginsuccess(JSON.stringify(userData));
                 } else {
-                    alert("Logged in as: " + user.displayName);
+                    alert("Logged in successfully as: " + user.displayName);
                 }
-            }).catch((error) => {
-                console.error("Login Error:", error);
-            });
+            }
+        }).catch((error) => {
+            console.error("Login Result Error:", error);
         });
     </script>
 </body>
